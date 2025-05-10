@@ -1,0 +1,76 @@
+@import url("https://api.fontshare.com/v2/css?f[]=teko@300,400,500,600&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500&display=swap");
+@import "tailwindcss";
+
+/* @theme {
+  --font-array: 'Array', sans-serif; 
+} */
+
+[style*="overflow-y: auto"] {
+  display: flex !important;
+  flex-direction: column;
+}
+
+[style*="overflow-y: auto"] {
+  scroll-snap-type: y proximity;
+  
+  & > * {
+    scroll-snap-align: end;
+  }
+}
+
+:root {
+  /* font-family: Inter, Monaco, "Courier New", monospace;  line-height: 1.5; */
+  /* font-weight: 200; */
+
+  /* font-family: 'Teko', sans-serif; */
+  font-family: 'Clash Grotesk', sans-serif;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: white	;
+
+  --color-main:#734bff;
+  --element-bg:#28282d;
+
+  --marginRightFix:170px;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Add these styles to your CSS */
+[style*="overflow-y: auto"] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-main) #28282d;
+}
+
+/* For WebKit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-main);
+  border-radius: 4px;
+}
+
+body {
+
+  /* height: 100vh; */
+}
+
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}

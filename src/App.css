@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+
+[style*="overflow-y: auto"] {
+  scroll-snap-type: y proximity;
+  
+  & > * {
+    scroll-snap-align: end;
+  }
+}
+
+#root {
+  text-align: center;
+}
+
+.gray-shadow{
+  border-color: gray;
+  box-shadow:  0px 0px 8px gray;
+}
+
+.spinnerAlien{
+  display: inline-block;
+  animation: rotate infinite 2s linear;
+}
+
+.main-button{
+  background-color: var(--color-main);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.local-video {
+  width: 300px;
+  height: 225px;
+  border: 2px solid blue;
+  transform: scaleX(-1);
+}
+
+.remote-video {
+  width: 300px;
+  height: 225px;
+  border: 2px solid red;
+  transform: scaleX(-1);
+}
+
+
+@keyframes neonBlink {
+  0%, 100% {
+    border-color: #ea5025;
+    box-shadow: 
+      0 0 5px #ea5025, 
+      0 0 10px #ea5025, 
+      0 0 20px #ea5025;
+  }
+  50% {
+    border-color: gray;
+    box-shadow: 
+      0 0 5px gray, 
+      0 0 10px gray, 
+      0 0 20px gray;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotateY(0deg);
+  }
+  25% {
+    transform: rotateY(45deg);
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  75% {
+    transform: rotateY(135deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+
+.blink-neon {
+  animation: neonBlink 1.5s infinite;
+}
+
+
+@media only screen and (max-width: 767px) {
+  @keyframes intenseBlink {
+    0%, 100% {
+      color: var(--color-main);
+      text-shadow: 0 0 5px var(--color-main);
+      transform: scale(1);
+      opacity: 1;
+    }
+    25% {
+      color: #2E7D32;
+      text-shadow:
+        0 0 15px #4CAF50,
+        0 0 30px #4CAF50,
+        0 0 45px #81C784;
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+    50% {
+      color: #4CAF50;
+      text-shadow:
+        0 0 20px #4CAF50,
+        0 0 40px #4CAF50,
+        0 0 60px #81C784,
+        0 0 80px #A5D6A7;
+      transform: scale(1.1);
+      filter: brightness(1.5) drop-shadow(0 0 8px #4CAF50);
+      opacity: 1;
+    }
+    75% {
+      color: #388E3C;
+      text-shadow: 0 0 10px #4CAF50;
+      transform: scale(1.05);
+    }
+  }
+
+  .intense-blinking {
+    animation: intenseBlink 0.8s infinite ease-in-out;
+    display: inline-block;
+    will-change: transform, filter, box-shadow;
+    position: relative; /* needed for the ::before overlay */
+  }
+
+  .intense-blinking::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.2) 0%, transparent 70%);
+    animation: pulse 1.5s infinite;
+    z-index: -1;
+  }
+
+  @keyframes pulse {
+    0%   { transform: scale(0.8); opacity: 0; }
+    50%  { opacity: 0.4; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+}
+
+
+@keyframes intenseBlink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.intense-blinking {
+  animation: intenseBlink 1s ease-in-out infinite;
+}
+
+/* Add these styles to your CSS */
+[style*="overflow-y: auto"] {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-main) #28282d;
+}
+
+/* For WebKit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-main);
+    border-radius: 4px;
+}
+
+[style*="overflow-y: auto"] {
+  display: flex !important;
+  flex-direction: column;
+}
