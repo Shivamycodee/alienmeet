@@ -28,6 +28,36 @@ AlienMeet is a platform where you can connect with random people without sharing
 ## Get Started 🚀  
 Visit [AlienMeet.com](https://alienmeet.com) and start connecting with people instantly!  
 
+
+## How to Run Locally 🖥️  
+
+Follow these steps to run AlienMeet locally on your machine:  
+
+1. Clone the repository:  
+    ```bash
+    git clone https://github.com/Shivamycodee/alienmeet
+    ```  
+
+2. Navigate to the project directory:  
+    ```bash
+    cd alienmeet
+    ```  
+
+3. Install dependencies:  
+    ```bash
+    npm install
+    ```  
+
+4. Start the development server:  
+    ```bash
+    npm run dev
+    ```  
+
+That's it! You can now access AlienMeet locally in your browser.  
+
+> **Note:** Server code will be released soon. Stay tuned!
+
+
 ---  
 💡 Feel free to contribute or report issues on our [GitHub Repository](https://github.com/Shivamycodee/alienmeet).  
 ⭐ If you like AlienMeet, don’t forget to drop a star on our [GitHub Repository](https://github.com/Shivamycodee/alienmeet)!
