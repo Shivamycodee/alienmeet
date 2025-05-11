@@ -12,7 +12,9 @@ import {
   FREE_TURN_SERVER,
   PAID_TURN_SERVER,
 } from "../lib/stun-turn-server";
-
+import { MdPhotoCamera } from "react-icons/md";
+import { BiSolidCameraOff } from "react-icons/bi";
+import { useMediaQuery } from 'react-responsive'
 
 // ------------------ WSS SERVER CONNECTION STRINGS STARTS ------------------ //
 
@@ -60,6 +62,12 @@ export default function Home() {
   const webcamVideo = useRef<HTMLVideoElement>(null);
   let peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const localStream = useRef<MediaStream | null>(null);
+
+  const [videoEnabled, setVideoEnabled] = useState(true);
+  const [remoteVideoEnabled, setRemoteVideoEnabled] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const isDesktop = useMediaQuery({ minWidth: 768 });
 
   const { sendJsonMessage,getWebSocket } = useWebSocket(joined ? WSS_URI : null, {
     onMessage: (event) => {
@@ -150,14 +158,20 @@ export default function Home() {
   };
 
   const setupDataChannel = (dataChannel: RTCDataChannel) => {
-    dataChannel.onmessage = (event) => {
-      // Handle incoming messages
+  dataChannel.onmessage = (event) => {
+    try {
+      const message = JSON.parse(event.data);
+      if (message.type === "video-status") {
+        setRemoteVideoEnabled(message.enabled);
+        return;
+      }
+      // Existing message handling...
+    } catch (e) {
+      // Handle regular messages
       setMessages((prev) => [...prev, { text: event.data, sender: "remote" }]);
-    };
-
-    dataChannel.onopen = () => {};
+    }
   };
-
+};
   
   // ------------------ Handling Peer connection using createPeerConnection ------------------ //
 
@@ -210,7 +224,39 @@ export default function Home() {
 
 
     // Update your ontrack handler
+      // Update your ontrack handler
     pc.ontrack = (event) => { 
+
+        if (event.track.kind === "video") {
+    // Handle video track specifically
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    if (!event.streams[0]) return;
+
+    // Clear existing video tracks
+    const remoteStream = remoteStreamRef.current;
+    if (remoteStream) {
+      remoteStream.getVideoTracks().forEach(track => track.stop());
+    }
+
+    // Add new video track
+    const newStream = new MediaStream([
+      ...(remoteStream?.getAudioTracks() || []),
+      event.track
+    ]);
+
+    remoteStreamRef.current = newStream;
+    videoElement.srcObject = newStream;
+  } else {
+    // Handle audio track
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(
+      new MediaStream([event.track])
+    );
+    source.connect(audioContext.destination);
+  }
+
       const newStream = new MediaStream();
 
       // Copy existing tracks if any
@@ -236,6 +282,8 @@ export default function Home() {
       if (videoRef.current) {
         videoRef.current.srcObject = newStream;
       }
+
+      
     };
 
     // Add local tracks if available.
@@ -479,6 +527,27 @@ export default function Home() {
     }
   };
 
+  const toggleVideo = async () => {
+  const newVideoState = !videoEnabled;
+  setVideoEnabled(newVideoState);
+
+  // Toggle local video track
+  if (localStream.current) {
+    const videoTrack = localStream.current.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = newVideoState;
+      
+      // Send status to remote peer
+      if (sendDataChannel?.readyState === "open") {
+        sendDataChannel.send(JSON.stringify({
+          type: "video-status",
+          enabled: newVideoState
+        }));
+      }
+    }
+  }
+};
+
   // getting camera access and all that..
   async function checkAndRequestMedia() {
     if (localStream.current) {
@@ -692,53 +761,129 @@ useEffect(() => {
         >
 
           {/* Local video stream */}
-          <div
+
+<div
   onClick={checkAndRequestMedia}
   className="relative flex-1 w-full md:max-w-[43vw] h-[34vh] max-h-[60vh] md:h-[50vh] md:aspect-video cursor-pointer"
   style={{
     backgroundColor: isPermissionGranted ? "inherit" : "var(--element-bg)",
   }}
 >
-  {/* Bottom-left: Mic toggle for laptop: md:bottom-2 md:left-2  */}
-  <div className="absolute
-   md:bottom-2 md:left-2 md:top-auto md:right-auto  
-   top-12 right-2          
-   flex z-10">
+  {/* Floating menu container */}
+  <div className="absolute top-2 right-2 md:top-auto md:bottom-2 z-20">
+    {/* Menu button */}
     <button
-      onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-      className="p-2 rounded-full bg-[var(--element-bg)]"
-      aria-label={isMute ? "Unmute microphone" : "Mute microphone"}
+      onClick={(e) => {
+        e.stopPropagation();
+        setMenuOpen(!menuOpen);
+      }}
+      className="cursor-pointer p-2 rounded-full bg-[var(--element-bg)] transition-transform duration-200 hover:scale-110"
+      aria-label="Control menu"
     >
-      {isMute ? (
-        <FaMicrophoneSlash color="white" className="cursor-pointer size-[18px] md:size-[24px]" size={24} />
-      ) : (
-        <FaMicrophone color="white" className="cursor-pointer size-[18px] md:size-[24px]" />
+      <svg
+        className="w-4 h-4 md:w-6 md:h-6 text-white"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+        />
+      </svg>
+    </button>
+
+    {/* Menu items */}
+    <div
+      className={`absolute right-0 mt-2 md:-mt-46 md:w-40 bg-[var(--element-bg)]/90 backdrop-blur-sm rounded-lg shadow-lg transition-all duration-300 ${
+        menuOpen
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-2 pointer-events-none"
+      }`}
+    >
+      
+      <div className="flex flex-col p-1 md:p-2 space-y-2">
+        {/* Mic Toggle */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleMute();
+          }}
+          className="cursor-pointer flex items-center space-x-2 p-2 hover:bg-white/10 rounded-md transition-colors"
+        >
+          {isMute ? (
+            <FaMicrophoneSlash className="text-white text-lg" />
+          ) : (
+            <FaMicrophone className="text-white text-lg" />
+          )}
+
+        {isDesktop && (
+        <span className="text-white text-sm">
+          {isMute ? "Unmute Mic" : "Mute Mic"}
+        </span>
       )}
-    </button>
+          
+        </button>
+
+        {/* Camera Rotate */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleReverseCamera();
+          }}
+          className="cursor-pointer flex items-center space-x-2 p-2 hover:bg-white/10 rounded-md transition-colors"
+        >
+          <IoCameraReverse className="text-white text-lg" />
+
+         { isDesktop &&
+          <span className="text-white text-sm">Flip Camera</span>
+          }
+
+        </button>
+
+        {/* Video Toggle */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleVideo();
+          }}
+          className="cursor-pointer flex items-center space-x-2 p-2 hover:bg-white/10 rounded-md transition-colors"
+        >
+          {videoEnabled ? (
+            <BiSolidCameraOff className="text-white text-lg" />
+          ) : (
+            <MdPhotoCamera className="text-white text-lg" />
+          )}
+
+{ isDesktop &&
+          <span className="text-white text-sm">
+            {videoEnabled ? "Turn Off Video" : "Turn On Video"}
+          </span>
+}
+
+        </button>
+      </div>
+
+    </div>
+    
   </div>
 
-  {/* Bottom-right: Camera switch */}
-  <div className="absolute top-2 md:top-auto md:bottom-2 right-2 z-10">
-    <button
-      onClick={(e) => { e.stopPropagation(); handleReverseCamera(); }}
-      className="p-2 rounded-full bg-[var(--element-bg)]"
-      aria-label="Switch camera"
-    >
-      <IoCameraReverse color="white" className="cursor-pointer size-[18px] md:size-[24px]" size={24} />
-    </button>
-  </div>
-
-  {/* Video element */}
+  {/* Rest of your video element and permission prompt */}
   <video
     ref={webcamVideo}
-    autoPlay playsInline muted
+    autoPlay
+    playsInline
+    muted
     onLoadedMetadata={() => webcamVideo.current?.play()}
     className={`w-full h-full object-cover transform bg-[var(--element-bg)] ${
       currentFacingMode === "user" ? "scale-x-[-1]" : ""
-    } md:max-w-[43vw] max-h-[60vh] md:h-[50vh]`}
+    } md:max-w-[43vw] max-h-[60vh] md:h-[50vh] ${
+      !videoEnabled ? "hidden" : ""
+    }`}
   />
 
-  {/* Permission prompt */}
   {!isPermissionGranted && (
     <div
       onClick={checkAndRequestMedia}
@@ -747,10 +892,16 @@ useEffect(() => {
       Allow Camera & Mic
     </div>
   )}
+
+  {/* Camera off indicator */}
+  {!videoEnabled && (
+    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+      <BiSolidCameraOff className="text-white text-4xl" />
+    </div>
+  )}
 </div>
 
-
-          {/* Remote video stream with animated close button */}
+          {/* ---------------------------------- Remote video stream with animated close button --------------------------------------------- */}
 <div
   onClick={connectToAlien}
   className="relative flex-1 w-full h-[34vh] md:max-w-[43vw] max-h-[60vh] md:h-[50vh] aspect-video cursor-pointer"
@@ -761,6 +912,13 @@ useEffect(() => {
         : "var(--element-bg)",
   }}
 >
+
+  {!remoteVideoEnabled && remotePeers?.stream && (
+  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+    <BiSolidCameraOff className="text-white text-4xl" />
+  </div>
+)}
+
   {/* Animated Close Button at Top-Right */}
   {remotePeers?.stream && (
     <button
@@ -795,17 +953,15 @@ useEffect(() => {
     </button>
   )}
 
-  <video
-    ref={videoRef}
-    autoPlay
-    playsInline
-    onLoadedMetadata={() => {
-      videoRef.current
-        ?.play()
-        .catch((e) => console.log("Autoplay error:", e));
-    }}
-    className="w-full object-cover transform bg-[var(--element-bg)] scale-x-[-1] h-[34vh] md:max-w-[43vw] max-h-[60vh] md:h-[50vh]"
-  />
+           {/* remote video here  */}
+<video
+  ref={videoRef}
+  autoPlay
+  playsInline
+  className={`w-full object-cover transform bg-[var(--element-bg)] scale-x-[-1] h-[34vh] md:max-w-[43vw] max-h-[60vh] md:h-[50vh] ${
+    !remoteVideoEnabled ? "hidden" : ""
+  }`}
+/>
 
   {!remotePeers?.stream ? (
     <div className="absolute inset-0 flex items-center justify-center text-white text-[20px] font-[600]">
@@ -818,6 +974,8 @@ useEffect(() => {
       )}
     </div>
   ) : null}
+
+  
 </div>
 
 
