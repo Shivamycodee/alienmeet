@@ -36,3 +36,14 @@ That’s why I built **AlienMeet** — a faster, more private way to connect.
 # Overview of webRTC 
 
 In simple terms, **WebRTC** enables two systems to connect and exchange media streams (like video and audio) directly without using a third-party server. WebRTC uses JavaScript APIs such as **RTCPeerConnection** and **RTCDataChannel** to connect, listen, and transmit streams. It also employs **ICE Candidates**, **STUN servers**, and **TURN servers** to establish and maintain peer-to-peer connections.
+
+---
+
+## Contribute
+
+If you like this project, consider supporting it:
+
+[![Give a Star](https://img.shields.io/badge/Give%20a%20Star-⭐-blue)](https://github.com/Shivamycodee/alienmeet/stargazers)  
+[![Create an Issue](https://img.shields.io/badge/Create%20an%20Issue-🐛-red)](https://github.com/Shivamycodee/alienmeet/issues)
+
+Here is the repository with this article: [AlienMeet GitHub Repo](https://github.com/Shivamycodee/alienmeet/edit/main/src/articles/about-alienmeet.md)
