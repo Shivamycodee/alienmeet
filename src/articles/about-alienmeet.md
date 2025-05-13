@@ -4,7 +4,6 @@ author: shivam yadav
 date: 2025-05-13
 tags: webRTC,decentralized,community
 index: 1
-label: why?
 description: AlienMeet’s mission: meet new people online. No borders. Just people. With decentralized WebRTC, video & audio go peer‑to‑peer—no slow servers, no third parties. Enjoy faster connections, lower latency, and true privacy.
 oneLiner: No borders. Just people.
 ---
