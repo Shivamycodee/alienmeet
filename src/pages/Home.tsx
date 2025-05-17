@@ -171,6 +171,14 @@ export default function Home() {
       setMessages((prev) => [...prev, { text: event.data, sender: "remote" }]);
     }
   };
+
+    dataChannel.onopen = () => {
+  // Immediately inform your peer of your current camera state
+  dataChannel.send(JSON.stringify({
+    type: "video-status",
+    enabled: videoEnabled
+  }));
+};
 };
   
   // ------------------ Handling Peer connection using createPeerConnection ------------------ //
